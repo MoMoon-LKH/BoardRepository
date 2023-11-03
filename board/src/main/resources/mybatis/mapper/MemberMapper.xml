@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.momoon.board.member.repository.MemberRepository">
+    <insert id="registerMember" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            member
+            (
+                memberId,
+                password,
+                name,
+                nickname,
+                email,
+                phone
+            )
+        VALUES
+            (
+             #{memberId},
+             #{password},
+             #{name},
+             #{email},
+             #{phone}
+            )
+    </insert>
+
+    <select id="countByMemberId" parameterType="String" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM member
+        WHERE memberId = #{memberId}
+    </select>
+
+    <select id="countByNickname" parameterType="String" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM member
+        WHERE nickname = #{nickname}
+    </select>
+</mapper>
