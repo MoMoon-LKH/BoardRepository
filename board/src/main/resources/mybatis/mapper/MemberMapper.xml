@@ -19,6 +19,7 @@
              #{memberId},
              #{password},
              #{name},
+             #{nickname},
              #{email},
              #{phone}
             )
@@ -37,4 +38,5 @@
         FROM member
         WHERE nickname = #{nickname}
     </select>
+
 </mapper>
