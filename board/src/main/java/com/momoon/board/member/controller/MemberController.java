@@ -2,6 +2,7 @@ package com.momoon.board.member.controller;
 
 import com.momoon.board.member.domain.Member;
 import com.momoon.board.member.dto.LoginDto;
+import com.momoon.board.member.dto.RegisterDto;
 import com.momoon.board.member.service.MemberService;
 import com.momoon.board.token.TokenProvider;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +29,9 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signUp(@RequestBody Member member) {
+    public ResponseEntity<Object> signup(@Valid @RequestBody RegisterDto registerDto) {
 
-        boolean bool = memberService.registerMember(member);
+        boolean bool = memberService.registerMember(registerDto);
         Map<String, Object> map = new HashMap<>();
         map.put("success", bool);
         map.put("message", "가입 완료되었습니다");
@@ -65,7 +67,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response) {
 
         Member member = memberService.login(loginDto);
         Map<String, Object> map = new HashMap<>();

@@ -13,6 +13,31 @@ public class Member {
     private String phone;
     private LocalDate createDate;
 
+    public Member() {
+    }
+
+    public Member(Long id, String memberId, String password, String name, String nickname, String email, String phone, LocalDate createDate) {
+        this.id = id;
+        this.memberId = memberId;
+        this.password = password;
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.phone = phone;
+        this.createDate = createDate;
+    }
+
+    private Member(builder builder) {
+        this.id = builder.id;
+        this.memberId = builder.memberId;
+        this.password = builder.password;
+        this.name = builder.name;
+        this.nickname = builder.nickname;
+        this.email = builder.email;
+        this.phone = builder.phone;
+        this.createDate = builder.createDate;
+    }
+
     public Long getId() {
         return id;
     }
@@ -136,5 +161,61 @@ public class Member {
     public String toString() {
         return "id = " + id + " memberId = " + memberId + " password = " + password +
                     " name = " + name + " nickname = " +  nickname + " email = " + email + " phone = " + phone + " createDate = " + createDate;
+    }
+
+
+    public static class builder {
+        private Long id;
+        private String memberId;
+        private String password;
+        private String name;
+        private String nickname;
+        private String email;
+        private String phone;
+        private LocalDate createDate;
+
+        public builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public builder memberId(String memberId) {
+            this.memberId = memberId;
+            return this;
+        }
+
+        public builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public builder nickname(String nickname) {
+            this.nickname = nickname;
+            return this;
+        }
+
+        public builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public builder phone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+
+        public builder createDate(LocalDate createDate) {
+            this.createDate = createDate;
+            return this;
+        }
+
+        public Member build() {
+            return new Member(this);
+        }
     }
 }

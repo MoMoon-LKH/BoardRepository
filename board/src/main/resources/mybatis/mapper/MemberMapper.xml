@@ -39,4 +39,11 @@
         WHERE nickname = #{nickname}
     </select>
 
+    <select id="findByMemberId" parameterType="String" resultType="com.momoon.board.member.domain.Member">
+        SELECT
+            *
+        FROM member
+        WHERE memberId = #{memberId}
+    </select>
+
 </mapper>
