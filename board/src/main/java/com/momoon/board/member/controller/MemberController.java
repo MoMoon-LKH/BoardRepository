@@ -5,6 +5,8 @@ import com.momoon.board.member.dto.LoginDto;
 import com.momoon.board.member.dto.RegisterDto;
 import com.momoon.board.member.service.MemberService;
 import com.momoon.board.token.TokenProvider;
+import com.momoon.board.token.domain.TokenInfo;
+import com.momoon.board.token.service.TokenInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,10 +25,12 @@ public class MemberController {
 
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
+    private final TokenInfoService tokenInfoService;
 
-    public MemberController(MemberService memberService, TokenProvider tokenProvider) {
+    public MemberController(MemberService memberService, TokenProvider tokenProvider, TokenInfoService tokenInfoService) {
         this.memberService = memberService;
         this.tokenProvider = tokenProvider;
+        this.tokenInfoService = tokenInfoService;
     }
 
     @PostMapping("/signup")
@@ -80,7 +85,14 @@ public class MemberController {
         map.put("token", tokenProvider.createAccessToken(member.getMemberId()));
         map.put("message", "성공적으로 로그인 되어있습니다");
 
-        response.addCookie(tokenProvider.createRefreshCookie(member.getMemberId()));
+        String refresh = tokenProvider.createRefreshToken(member.getMemberId());
+        response.addCookie(tokenProvider.createRefreshCookie(refresh));
+
+        TokenInfo token = new TokenInfo.builder()
+                .memberId(member.getId())
+                .tokenValue(refresh)
+                .build();
+        tokenInfoService.insertLoginToken(token);
 
         return ResponseEntity.ok(map);
     }

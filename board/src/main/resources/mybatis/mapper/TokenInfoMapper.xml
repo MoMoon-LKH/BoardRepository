@@ -4,10 +4,10 @@
 
 <mapper namespace="com.momoon.board.token.repository.TokenRepository">
 
-    <insert id="addRefreshToken" >
+    <insert id="addRefreshToken">
         INSERT INTO
             tokeninfo (memberId, tokenValue)
-        VALUES ("#{memberId}, #{tokenValue}")
+        VALUES (#{memberId}, #{tokenValue})
     </insert>
 
     <update id="updateToken" parameterType="com.momoon.board.token.domain.TokenInfo">
@@ -17,5 +17,13 @@
             createDate = #{createDate}
         WHERE memberId = #{memberId}
     </update>
+
+    <delete id="deleteByMemberId" parameterType="Long">
+        DELETE FROM tokeninfo
+        WHERE memberId = #{memberId}
+
+    </delete>
+
+
 
 </mapper>

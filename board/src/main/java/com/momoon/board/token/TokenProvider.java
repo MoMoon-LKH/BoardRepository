@@ -65,8 +65,8 @@ public class TokenProvider {
                 .compact();
     }
 
-    public Cookie createRefreshCookie(String loginId) {
-        Cookie cookie = new Cookie("refresh", createRefreshToken(loginId));
+    public Cookie createRefreshCookie(String refresh) {
+        Cookie cookie = new Cookie("refresh", refresh);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(refreshValidityDay);
