@@ -21,6 +21,10 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public Member findByMemberId(String memberId) {
+        return memberRepository.findByMemberId(memberId);
+    }
+
     public boolean registerMember(RegisterDto register) {
         register.setPassword(passwordEncoder.encode(register.getPassword()));
 

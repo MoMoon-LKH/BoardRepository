@@ -20,4 +20,8 @@ public class TokenInfoService {
         tokenRepository.deleteByMemberId(tokenInfo.getMemberId());
         tokenRepository.addRefreshToken(tokenInfo);
     }
+
+    public void deleteByMemberId(Long memberId) {
+        tokenRepository.deleteByMemberId(memberId);
+    }
 }

@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -93,6 +95,41 @@ public class MemberController {
                 .tokenValue(refresh)
                 .build();
         tokenInfoService.insertLoginToken(token);
+
+        return ResponseEntity.ok(map);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
+        String token = request.getHeader("Authorization");
+        Map<String, Object> map = new HashMap<>();
+
+        if (token == null) {
+            map.put("message", "잘못된 접근입니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+        }
+
+        token = token.replace("Bearer ", "");
+        if (!tokenProvider.validateToken(token, false)) {
+            map.put("message", "잘못된 토큰입니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+        }
+
+        String memberId = tokenProvider.getMemberIdByToken(token);
+        Member member = memberService.findByMemberId(memberId);
+
+        for (Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals("refresh")) {
+                cookie.setMaxAge(0);
+
+                response.addCookie(cookie);
+            }
+        }
+
+        tokenInfoService.deleteByMemberId(member.getId());
+
+        map.put("message", "성공적으로 로그아웃 되었습니다");
 
         return ResponseEntity.ok(map);
     }

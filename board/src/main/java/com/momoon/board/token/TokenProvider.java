@@ -2,10 +2,7 @@ package com.momoon.board.token;
 
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.momoon.board.member.domain.Member;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ClaimsBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecureDigestAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,5 +69,33 @@ public class TokenProvider {
         cookie.setMaxAge(refreshValidityDay);
 
         return cookie;
+    }
+
+    public String getMemberIdByToken(String token) {
+        return Jwts.parser().verifyWith((SecretKey) key).build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("username", String.class);
+    }
+
+    public boolean validateToken(String token, boolean isRefresh) {
+
+        Key isKey;
+
+        if (isRefresh) {
+            isKey = refreshKey;
+        } else {
+            isKey = key;
+        }
+
+        try {
+            Jwts.parser()
+                    .verifyWith((SecretKey) isKey).build()
+                    .parseSignedClaims(token).getPayload();
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 }
