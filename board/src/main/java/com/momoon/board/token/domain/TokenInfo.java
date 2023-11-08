@@ -18,6 +18,9 @@ public class TokenInfo {
         return tokenValue;
     }
 
+    public TokenInfo() {
+    }
+
     private TokenInfo(builder builder) {
         this.memberId = builder.memberId;
         this.tokenValue = builder.tokenValue;

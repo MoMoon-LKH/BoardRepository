@@ -1,5 +1,6 @@
 package com.momoon.board.member.controller;
 
+import com.momoon.board.common.ErrorResponse;
 import com.momoon.board.member.domain.Member;
 import com.momoon.board.member.dto.LoginDto;
 import com.momoon.board.member.dto.RegisterDto;
@@ -116,15 +117,15 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
         }
 
-        String memberId = tokenProvider.getMemberIdByToken(token);
+        String memberId = tokenProvider.getMemberIdByToken(token, false);
         Member member = memberService.findByMemberId(memberId);
 
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("refresh")) {
-                cookie.setMaxAge(0);
 
-                response.addCookie(cookie);
-            }
+        Cookie refreshCookie = tokenProvider.getRefreshCookie(request.getCookies());
+
+        if (refreshCookie != null) {
+            refreshCookie.setMaxAge(0);
+            response.addCookie(refreshCookie);
         }
 
         tokenInfoService.deleteByMemberId(member.getId());
@@ -133,4 +134,44 @@ public class MemberController {
 
         return ResponseEntity.ok(map);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> issuanceToken(HttpServletRequest request) {
+
+        Cookie refreshCookie = tokenProvider.getRefreshCookie(request.getCookies());
+
+        if (refreshCookie == null) {
+            ErrorResponse errorResponse = new ErrorResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .message("재로그인 후 시도해주세요").build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
+        String refresh = refreshCookie.getValue();
+
+        if (!tokenProvider.validateToken(refresh, true)) {
+            ErrorResponse errorResponse = new ErrorResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .message("정상적인 토큰이 아닙니다").build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
+        String memberId = tokenProvider.getMemberIdByToken(refresh, true);
+
+        if(tokenInfoService.findByMemberIdAndTokenValue(memberId, refresh) == null) {
+            ErrorResponse errorResponse = new ErrorResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .message("잘못된 토큰 정보입니다").build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
+        String accessToken = tokenProvider.createAccessToken(memberId);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("token", tokenProvider.createAccessToken(memberId));
+        map.put("message", "토큰 재발급되었습니다");
+
+        return ResponseEntity.ok(map);
+    }
+
 }

@@ -25,5 +25,9 @@
     </delete>
 
 
-
+    <select id="findByMemberIdAndTokenValue" parameterType="String" resultType="com.momoon.board.token.domain.TokenInfo">
+        SELECT t.memberId, t.tokenValue, t.createDate FROM tokeninfo t
+            INNER JOIN member m ON t.memberId = m.id
+        WHERE m.memberId = #{memberId} AND t.tokenValue = #{tokenValue}
+    </select>
 </mapper>

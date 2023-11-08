@@ -23,6 +23,8 @@ public class TokenProvider {
     private Key key;
     private Key refreshKey;
 
+    private final String REFRESH_COOKIE_NAME = "refresh";
+
 
     public TokenProvider(
             @Value("${jwt.token-validity-in-second}") int accessValiditySecond,
@@ -63,7 +65,7 @@ public class TokenProvider {
     }
 
     public Cookie createRefreshCookie(String refresh) {
-        Cookie cookie = new Cookie("refresh", refresh);
+        Cookie cookie = new Cookie(REFRESH_COOKIE_NAME, refresh);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(refreshValidityDay);
@@ -71,8 +73,21 @@ public class TokenProvider {
         return cookie;
     }
 
-    public String getMemberIdByToken(String token) {
-        return Jwts.parser().verifyWith((SecretKey) key).build()
+    public Cookie getRefreshCookie(Cookie[] cookies) {
+        for (Cookie cookie : cookies) {
+
+            if (cookie.getName().equals(REFRESH_COOKIE_NAME)) {
+                return cookie;
+            }
+        }
+
+        return null;
+    }
+
+    public String getMemberIdByToken(String token, boolean isRefresh) {
+        Key isKey = selectKey(isRefresh);
+
+        return Jwts.parser().verifyWith((SecretKey) isKey).build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .get("username", String.class);
@@ -80,13 +95,7 @@ public class TokenProvider {
 
     public boolean validateToken(String token, boolean isRefresh) {
 
-        Key isKey;
-
-        if (isRefresh) {
-            isKey = refreshKey;
-        } else {
-            isKey = key;
-        }
+        Key isKey = selectKey(isRefresh);
 
         try {
             Jwts.parser()
@@ -98,4 +107,16 @@ public class TokenProvider {
 
         return true;
     }
+
+    private Key selectKey(boolean isRefresh) {
+
+        if (isRefresh) {
+            return refreshKey;
+        } else {
+            return key;
+        }
+    }
+
+
+
 }

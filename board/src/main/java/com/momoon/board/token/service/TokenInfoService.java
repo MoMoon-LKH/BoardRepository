@@ -5,6 +5,8 @@ import com.momoon.board.token.repository.TokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class TokenInfoService {
 
@@ -23,5 +25,10 @@ public class TokenInfoService {
 
     public void deleteByMemberId(Long memberId) {
         tokenRepository.deleteByMemberId(memberId);
+    }
+
+    public TokenInfo findByMemberIdAndTokenValue(String memberId, String tokenValue) {
+        return tokenRepository.findByMemberIdAndTokenValue(memberId, tokenValue);
+
     }
 }
