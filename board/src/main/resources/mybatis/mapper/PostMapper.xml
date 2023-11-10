@@ -4,5 +4,62 @@
 
 <mapper namespace="com.momoon.board.post.repository.PostRepository">
 
+    <select id="findListByCategoryId" >
+        SELECT *
+        FROM post p
+        WHERE
+            P.categoryId = #{categoryId}
+            <if test="searchWord != null">
+                AND
+                <choose>
+                    <when test="searchSelect == '제목'">p.title LIKE %#{searchWord}% </when>
+                    <when test="searchSelect == '내용'">p.content LIKE %#{searchWord}% </when>
+                </choose>
+            </if>
+        LIMIT #{limit} OFFSET #{offset}
+
+    </select>
+
+    <update id="updateViewCntById">
+        UPDATE post
+        SET
+            viewCnt = viewCnt + 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="findDetailById" resultType="com.momoon.board.post.domain.PostDetail">
+        SELECT
+            p.id,
+            p.title,
+            p.content,
+            p.viewCnt,
+            p.createDate,
+            p.modifyDate,
+            p.personalId,
+            m.nickname
+        FROM post p
+        LEFT JOIN member m ON p.memberId = m.id
+        WHERE p.id = #{id}
+    </select>
+
+    <insert id="savePost" parameterType="com.momoon.board.post.domain.PostRequest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            post(
+                 title,
+                 content,
+                 memberId,
+                 categoryId,
+                 personalId,
+                 password
+            ) VALUES
+                  (
+                   #{title},
+                   #{content},
+                   #{memberId},
+                   #{categoryId},
+                   #{personalId},
+                   #{password}
+                  )
+    </insert>
 
 </mapper>

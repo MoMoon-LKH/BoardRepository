@@ -2,6 +2,7 @@ package com.momoon.board.token;
 
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.momoon.board.member.domain.Member;
+import com.momoon.board.token.exception.NotValidateTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecureDigestAlgorithm;
@@ -102,7 +103,7 @@ public class TokenProvider {
                     .verifyWith((SecretKey) isKey).build()
                     .parseSignedClaims(token).getPayload();
         } catch (Exception e) {
-            return false;
+            throw new NotValidateTokenException();
         }
 
         return true;
@@ -118,5 +119,8 @@ public class TokenProvider {
     }
 
 
+    public String removeBearer(String token) {
+        return token.replace("Bearer ", "");
+    }
 
 }

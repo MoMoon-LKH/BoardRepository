@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.momoon.board.category.repository.CategoryRepository">
+
+    <select id="findById" parameterType="Long" resultType="com.momoon.board.category.domain.Category">
+        SELECT
+            *
+        FROM category
+        WHERE id = #{id}
+    </select>
+
+</mapper>
