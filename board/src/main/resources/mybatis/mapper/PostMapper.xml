@@ -62,4 +62,32 @@
                   )
     </insert>
 
+    <select id="findById" parameterType="Long" resultType="com.momoon.board.post.domain.Post">
+       SELECT
+           *
+       FROM post
+       WHERE id = #{id}
+    </select>
+
+    <update id="updatePost">
+        UPDATE post
+        SET
+            title = #{title},
+            content = #{content},
+            modifyDate = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePost">
+        DELETE FROM post
+        WHERE id = #{id}
+    </delete>
+
+    <select id="countByCategoryId">
+        SELECT
+            COUNT(*)
+        FROM post p
+        WHERE categoryId = #{categoryId}
+    </select>
+
 </mapper>

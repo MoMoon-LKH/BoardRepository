@@ -7,18 +7,18 @@ import com.momoon.board.common.AccessService;
 import com.momoon.board.common.exception.NotAccessRightException;
 import com.momoon.board.member.domain.Member;
 import com.momoon.board.member.service.MemberService;
-import com.momoon.board.post.domain.PostDetail;
-import com.momoon.board.post.domain.PostListRequest;
-import com.momoon.board.post.domain.PostListResponse;
-import com.momoon.board.post.domain.PostRequest;
+import com.momoon.board.post.domain.*;
 import com.momoon.board.post.service.PostService;
 import com.momoon.board.token.TokenProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -66,12 +66,17 @@ public class PostController {
                 .searchWord(searchWord)
                 .build();
 
+        Map<String, Object> map = new HashMap<>();
+        int total = postService.countByCategoryId(categoryId);
         List<PostListResponse> list = postService.findListByCategoryId(listRequest);
+
+        map.put("total", total);
+        map.put("list", list);
 
         // 코멘트 수 관련 로직 추가 예정
         
         
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(map);
     }
 
     @GetMapping("/{categoryId}/{id}")
@@ -117,23 +122,83 @@ public class PostController {
 
         postService.savePost(postRequest);
 
-        return ResponseEntity.ok(postRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postRequest);
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            @RequestBody PostRequest postRequest,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok("");
+
+        Post post = postService.findById(id);
+
+        if (post.getMemberId() != null) {
+            String accessToken = request.getHeader("Authorization");
+            if(accessToken != null) {
+                accessToken = tokenProvider.removeBearer(accessToken);
+                tokenProvider.validateToken(accessToken, false);
+                String memberId = tokenProvider.getMemberIdByToken(accessToken, false);
+                Member member = memberService.findByMemberId(memberId);
+
+                if (!post.getMemberId().equals(member.getId())) {
+                    throw new NotAccessRightException();
+                }
+
+            } else {
+                throw new NotAccessRightException();
+            }
+        } else {
+            if (postRequest.getPassword() == null || !passwordEncoder.matches(postRequest.getPassword(), post.getPassword())) {
+                throw new NotAccessRightException();
+            }
+        }
+
+        postRequest.setId(id);
+        postService.updatePost(postRequest);
+
+        return ResponseEntity.ok(postService.findDetailById(id));
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            @RequestBody PostRequest postRequest,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok("");
+
+        Post post = postService.findById(id);
+
+        if (post.getMemberId() != null) {
+            String accessToken = request.getHeader("Authorization");
+            if(accessToken != null) {
+                accessToken = tokenProvider.removeBearer(accessToken);
+                tokenProvider.validateToken(accessToken, false);
+                String memberId = tokenProvider.getMemberIdByToken(accessToken, false);
+                Member member = memberService.findByMemberId(memberId);
+
+                if (!post.getMemberId().equals(member.getId())) {
+                    throw new NotAccessRightException();
+                }
+
+            } else {
+                throw new NotAccessRightException();
+            }
+        } else {
+            if (postRequest.getPassword() == null || !passwordEncoder.matches(postRequest.getPassword(), post.getPassword())) {
+                throw new NotAccessRightException();
+            }
+        }
+
+        postService.deletePost(id);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", "정상적으로 삭제되었습니다");
+
+        return ResponseEntity.ok(map);
     }
 
 }

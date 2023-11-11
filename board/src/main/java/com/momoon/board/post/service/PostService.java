@@ -1,9 +1,6 @@
 package com.momoon.board.post.service;
 
-import com.momoon.board.post.domain.PostDetail;
-import com.momoon.board.post.domain.PostListRequest;
-import com.momoon.board.post.domain.PostListResponse;
-import com.momoon.board.post.domain.PostRequest;
+import com.momoon.board.post.domain.*;
 import com.momoon.board.post.exception.NotFoundPostException;
 import com.momoon.board.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
@@ -34,5 +31,21 @@ public class PostService {
 
     public Long savePost(PostRequest postRequest) {
         return postRepository.savePost(postRequest);
+    }
+
+    public Post findById(Long id) {
+        return postRepository.findById(id).orElseThrow(NotFoundPostException::new);
+    }
+
+    public void updatePost(PostRequest postRequest){
+        postRepository.updatePost(postRequest);
+    }
+
+    public void deletePost(Long id) {
+        postRepository.deletePost(id);
+    }
+
+    public int countByCategoryId(Long categoryId) {
+        return postRepository.countByCategoryId(categoryId);
     }
 }
