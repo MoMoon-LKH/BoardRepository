@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.momoon.board.comment.repository.CommentRepository">
+    <insert id="saveComment" useGeneratedKeys="true" keyProperty="id" parameterType="com.momoon.board.comment.domain.CommentRequest">
+        INSERT INTO
+            comment (
+                content,
+                memberId,
+                postId,
+                personalId,
+                password
+        ) VALUES (
+                  #{content},
+                  #{memberId},
+                  #{postId},
+                  #{personalId},
+                  #{password}
+                         )
+    </insert>
+
+    <update id="updateComment">
+        UPDATE post
+        SET
+            content = #{content}
+            mofidyDate = now()
+        WHERE id = #{id}
+    </update>
+
+    <select id="findListByPostId">
+        SELECT
+            c.id,
+            c.content,
+            c.createDate,
+            c.modifyDate,
+            m.nickname,
+            c.personalId
+        FROM comment c
+        left join member m on c.memberId = m.id
+        WHERE postId = #{postId}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByPostId" resultType="int" parameterType="Long">
+        SELECT
+            COUNT(*)
+        FROM comment
+        WHERE postId = #{postId}
+    </select>
+
+    <select id="findById" parameterType="Long" resultType="com.momoon.board.comment.domain.CommentResponse">
+        SELECT
+            c.id,
+            c.content,
+            c.createDate,
+            c.modifyDate,
+            m.nickname,
+            c.personalId
+        FROM comment c
+                 left join member m on c.memberId = m.id
+        WHERE c.id = #{id}
+    </select>
+</mapper>
