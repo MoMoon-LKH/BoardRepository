@@ -13,3 +13,5 @@ mybatis:
 jwt:
   token-validity-in-second: 300
   refresh-validity-day: 3
+  key: com-momoon-jwt-token-access-token-key
+  refresh-key: com-momoon-jwt-token-refresh-token-key
