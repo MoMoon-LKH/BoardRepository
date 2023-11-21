@@ -1,6 +1,6 @@
 package com.momoon.board.member.service;
 
-import com.momoon.board.common.exception.NotFoundException;
+import com.momoon.board.setting.exception.NotFoundException;
 import com.momoon.board.member.domain.LoginDto;
 import com.momoon.board.member.domain.Member;
 import com.momoon.board.member.domain.MemberDto;
@@ -8,8 +8,6 @@ import com.momoon.board.member.domain.RegisterDto;
 import com.momoon.board.member.repository.MemberMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.security.NoSuchAlgorithmException;
 
 @Service
 public class MemberServiceImpl implements MemberService{
@@ -50,10 +48,10 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public MemberDto findById(Long id) {
-        return memberMapper.findById(id).orElseThrow(() -> new NotFoundException("해당 회원을 찾지 못하였습니다"));
+        return memberMapper.findById(id).orElseThrow(NotFoundException::new);
     }
 
     public Member login(LoginDto loginDto){
-        return memberMapper.findByLoginIdAndPassword(loginDto).orElseThrow(() -> new NotFoundException("아이디와 비밀번호가 다릅니다"));
+        return memberMapper.findByLoginIdAndPassword(loginDto).orElseThrow(NotFoundException::new);
     }
 }

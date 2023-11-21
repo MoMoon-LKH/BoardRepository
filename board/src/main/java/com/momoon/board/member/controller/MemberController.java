@@ -26,11 +26,12 @@ public class MemberController {
         this.tokenService = tokenService;
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody RegisterDto registerDto) {
+    public MemberDto signup(@RequestBody RegisterDto registerDto) {
 
         Member member = memberService.registerMember(registerDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.findById(member.getId()));
+        return memberService.findById(member.getId());
     }
 
     @GetMapping("/duplicate-id")
@@ -52,4 +53,5 @@ public class MemberController {
 
         return ResponseEntity.ok(token);
     }
+
 }
